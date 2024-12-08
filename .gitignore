@@ -1,0 +1,23 @@
+.DS_Store
+.ipynb_checkpoints/
+05-Neural-Network-Exercises.ipynb
+7.3 Datasets with pytorch.ipynb
+7.4 Basic ANN.ipynb
+7.5 Full ANN.ipynb
+8.1 CNN with MNIST.ipynb
+8.2 CIFAR 10 with CNN.ipynb
+Data/
+MLB.ipynb
+PYTORCH_NOTEBOOKS/
+Section 4 (Pandas crash course).ipynb
+Section 5 Tensor basics.ipynb
+Section 7.1 Gradients.ipynb
+Section 7.2 Linear Regression.ipynb
+Section 8.0 ANN with MNIST.ipynb
+TaxiModel.pt
+TestSlidingWindow.ipynb
+__pycache__/
+baseballData/
+footballData/
+myCIFARmodel.pt
+my_iris_model.pt
