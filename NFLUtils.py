@@ -29,7 +29,7 @@ class NFLUtils():
             model_prediction_decimal = abs(2*prediction_decimal - 1)
         
         # Average of model prediction odds and model win prob
-        print(f"prediction_decimal {prediction_decimal} model_prediction_decimal {model_prediction_decimal}")
+        # print(f"prediction_decimal {prediction_decimal} model_prediction_decimal {model_prediction_decimal}")
         win_probability = sum([model_prediction_decimal, model_win_prob]) / 2
         bankroll_fraction = win_probability - ((1 - win_probability) / fractional_odds)
         return bankroll_fraction
@@ -81,7 +81,7 @@ class NFLUtils():
         pred_values_int = np.rint(valid_predictions).flatten().astype(np.int32)
         pred_values = valid_predictions.flatten()
         model_win_prob = (1.0*(true_values == pred_values_int).sum()) / (true_values.shape[0])
-        print(f"model wn prob {model_win_prob}")
+        # print(f"model wn prob {model_win_prob}")
         
         for i in range(len(pred_values_int)):
             total_bets += 1
@@ -90,13 +90,13 @@ class NFLUtils():
             prediction = pred_values_int[i]
             actual = perf_y_col[i][0]
             won_odds = perf_y_col[i][1] if actual == 1 else perf_y_col[i][2]
-            print(f"won odss is {won_odds}")
+            # print(f"won odss is {won_odds}")
             
             # Calculate position size (could be dynamic based on confidence)
             bet_size = account_value * position_size
             kelly_res = self.kelly_criterion(model_win_prob, pred_values[i], won_odds)
-            bet_size = kelly_res * (kelly_weight*bet_size)
-            print(f"kelly_res: {kelly_res} model_win_prob: {model_win_prob}  won_odds:{won_odds} account_val: {account_value}")
+            bet_size = kelly_res * bet_size
+            # print(f"kelly_res: {kelly_res} model_win_prob: {model_win_prob}  won_odds:{won_odds} account_val: {account_value}")
             
             # Calculate profit/loss
             if actual == prediction:
