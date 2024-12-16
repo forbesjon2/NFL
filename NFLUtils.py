@@ -1,15 +1,171 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
+from datetime import datetime
 import math
 import torch.nn as nn
+import requests as r
+from bs4 import BeautifulSoup as bs
+
 
 class NFLUtils():
     """
+    -- Backtest functions --
     kelly_criterion-> Used by backtest_model to calculate optimal position size
     map_losses     -> Used by optuna in NFL_ANN to map b/t loss functions
     backtest_model -> Calculates and charts a backtest against the performance set
+    
+    -- Sliding window functions ---
+    get_track_dict -> creates the track dict which is to be used by 
     """
+    team_abbrv = {
+        "Buffalo Bills": "buf",
+        "Los Angeles Rams": "lar", # St. Louis Rams 1995-2015
+        "New Orleans Saints": "nor",
+        "Atlanta Falcons": "atl",
+        "Cleveland Browns": "cle",
+        "Carolina Panthers": "car",
+        "Chicago Bears": "chi",
+        "San Francisco 49ers": "sfo",
+        "Pittsburgh Steelers": "pit",
+        "Cincinnati Bengals": "cin",
+        "Houston Texans": "hou", # Didn't exist until 2002
+        "Indianapolis Colts": "ind",
+        "Philadelphia Eagles": "phi",
+        "Detroit Lions": "det",
+        "Washington Commanders": "was", 
+        "Washington Football Team": "was",
+        "Washington Redskins": "was", # Washington Redskins
+        "Jacksonville Jaguars": "jax",
+        "Miami Dolphins": "mia",
+        "New England Patriots": "nwe",
+        "Baltimore Ravens": "bal", # idk something in 1999
+        "New York Jets": "nyj",
+        "Kansas City Chiefs": "kan",
+        "Arizona Cardinals": "ari",
+        "Minnesota Vikings": "min",
+        "Green Bay Packers": "gnb",
+        "New York Giants": "nyg",
+        "Tennessee Titans": "ten",
+        "Los Angeles Chargers": "lac", # San Diego Chargers until 2017
+        "San Diego Chargers": "lac",
+        "Las Vegas Raiders": "lvr",
+        "Oakland Raiders": "lvr",
+        "Tampa Bay Buccaneers": "tam",
+        "Dallas Cowboys": "dal",
+        "Seattle Seahawks": "sea",
+        "Denver Broncos": "den"
+    }
+    track_cols = [
+        # General
+        'Date',  # Date
+
+        # First Downs
+        'First_Downs',
+
+        # Rushing
+        'Rush',
+        'Yds',
+        'TDs',
+
+        # Passing
+        'Cmp',
+        'Att',
+        'Yd',
+        'TD',
+        'INT',
+        'Sacked',
+        'Yards',
+        'Net_Pass_Yards',
+
+        # Total Yards
+        'Total_Yards',
+
+        # Fumbles
+        'Fumbles',
+        'Lost',
+        'Turnovers',
+
+        # Penalties
+        'Penalties',
+        'Yards',
+
+        # Third Down Conversions
+        # 'Third_Down_Conv',
+
+        # Fourth Down Conversions
+        # 'Fourth_Down_Conv',
+
+        # Time of Possession
+        # 'Time_of_Possession',
+
+        # Passing Detailed
+        'passing_att',
+        'passing_cmp',
+        'passing_int',
+        'passing_lng',
+        'passing_sk',
+        'passing_td',
+        'passing_yds',
+
+        # Receiving
+        'receiving_lng',
+        'receiving_td',
+        'receiving_yds',
+
+        # Rushing Detailed
+        'rushing_att',
+        'rushing_lng',
+        'rushing_td',
+        'rushing_yds',
+
+        # Defense Interceptions
+        'def_interceptions_int',
+        'def_interceptions_lng',
+        'def_interceptions_pd',
+        'def_interceptions_td',
+        'def_interceptions_yds',
+
+        # Defense Fumbles
+        'fumbles_ff',
+        'fumbles_fr',
+        'fumbles_td',
+        'fumbles_yds',
+
+        # Defense Tackles
+        'sk',
+        'tackles_ast',
+        'tackles_comb',
+        'tackles_qbhits',
+        'tackles_solo',
+        'tackles_tfl',
+
+        # Kick Returns
+        'kick_returns_lng',
+        'kick_returns_rt',
+        'kick_returns_td',
+        'kick_returns_yds',
+
+        # Punt Returns
+        'punt_returns_lng',
+        'punt_returns_ret',
+        'punt_returns_td',
+        'punt_returns_yds',
+
+        # Punting
+        'punting_lng',
+        'punting_pnt',
+        'punting_yds',
+        'scoring_fga',
+        'scoring_fgm',
+        'scoring_xpa',
+        'scoring_xpm',
+
+        # Odds
+        'start_odds',
+        'halftime_odds'
+    ]
+    
     def __init__(self):
         pass
     
@@ -162,5 +318,87 @@ class NFLUtils():
             y_axis.append(account_value)
         plt.plot(x_axis, y_axis)
         plt.show()
+        
+        
+        
+# ----------------------------------------------------
+# ----------- "SlidingWindowNFL" Utils ---------------
+# ----------------------------------------------------
+    def get_track_dict(self, df):
+        """
+        df from reading combined.csv
+        """
+        track_dict = {}
+
+        for row in df.itertuples():
+            # year = row.Date.split('-')[0]
+            year = row.Season
+            home_team = row.Home_Team
+            visitor_team = row.Visitor_Team
+
+            # Home or visitor team has < minimum_window total games
+            for col in self.track_cols:
+                home_column_name = f'{year}_{home_team}_{col}'
+                visitor_column_name = f'{year}_{visitor_team}_{col}'
+
+                # Home team
+                home_col = col if col == 'Date' else 'H_' + col
+                if home_column_name in track_dict:
+                    track_dict[home_column_name].append(getattr(row, home_col))
+                else:
+                    track_dict[home_column_name] = [getattr(row, home_col)]
+
+                # Visitor team
+                visitor_col = col if col == 'Date' else 'V_' + col
+                if visitor_column_name in track_dict:
+                    track_dict[visitor_column_name].append(getattr(row, visitor_col))
+                else:
+                    track_dict[visitor_column_name] = [getattr(row, visitor_col)]
+        return track_dict
+        
+        
+    def get_current_date_games(self, currentSeason):
+        """
+        Retrieves the list of games for the current date provided the currentSeason
+        
+        If error occurrs, will print a message and return an empty array
+        """
+        currentDateGames = []
+        # Example: https://www.pro-football-reference.com/years/2022/games.htm
+        gamesList = r.get('https://www.pro-football-reference.com/years/' + str(currentSeason) + '/games.htm')
+        if gamesList.status_code != 200:
+            print("Got invalid status code 1")
+            return []
+        gList = bs(gamesList.text, features='html.parser')
+
+        boxscoreLinks = gList.select('td[data-stat="boxscore_word"] a')
+        hrefs = [link['href'] for link in boxscoreLinks if 'href' in link.attrs]
+
+        # iterate through each url and ignore until you reach the current date
+        for i in range(0, len(hrefs)):
+            href = hrefs[i]
+            formattedDate = f"{href[11:15]}-{href[15:17]}-{href[17:19]}"
+            formattedDateObj = datetime.strptime(formattedDate, '%Y-%m-%d').date()
+            currentDate = datetime.now().date()
+            if formattedDateObj != currentDate:
+                continue
+
+            boxscoreLinks = gList.select('td[data-stat="boxscore_word"] a')
+            visitorList = gList.select('td[data-stat="winner"] a')
+            homeList = gList.select('td[data-stat="loser"] a')
+            bsLen = len(boxscoreLinks)
+
+            if bsLen != len(visitorList) or bsLen != len(homeList):
+                print("One of boxscore, visitor, or home list doesn't match the others")
+                return []
+            currentDateGames.append({'Season': currentSeason, 'Home_Team': self.team_abbrv[homeList[i].text].upper(), 'Visitor_Team': self.team_abbrv[visitorList[i].text].upper(), 'Date':formattedDate})
+        return currentDateGames
+        
+        
+        
+        
+        
+        
+        
 
     
