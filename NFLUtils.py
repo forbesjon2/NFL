@@ -253,12 +253,12 @@ class NFLUtils():
                 continue
                 
             # Add to list if same day
-            if current_date == perf_date_col[i]:
+            if current_date == perf_date_col[i][0]:
                 current_day_bets.append(i)
                 continue
             # Place bets and reset list
             else:
-                current_date = perf_date_col[i]
+                current_date = perf_date_col[i][0]
             
             # Don't bet if no bets on current date
             if len(current_day_bets) == 0:
@@ -267,9 +267,9 @@ class NFLUtils():
             account_usable_cash = account_value
             
             # Adjust position size based on # of bets (10% if <= 10 bets, otherwise adjust)
-            adjusted_position_size = min(0.1, 100.0 / len(current_day_bets))
-            print(current_day_bets)
+            adjusted_position_size = min(0.1, (100.0 / len(current_day_bets)) / 100)
             # print(current_date)
+            print(perf_date_col[i])
             while len(current_day_bets) != 0:
                 bet_idx = current_day_bets.pop(0)
 
@@ -298,7 +298,8 @@ class NFLUtils():
                     continue
                     
                 total_bets += 1
-                # print(f"{current_date[0]} kelly {kelly_res:.2f} w_odds:{won_odds:.2f} acct_val: {account_value:.2f} usable cash: {account_usable_cash:.2f} won: {actual == prediction}")
+                #  kelly {kelly_res:.2f}
+                print(f"{current_date}: w_odds:{won_odds:.2f} acct_val: {account_value:.2f} usable cash: {account_usable_cash:.2f} won: {actual == prediction}")
             
                 # Calculate profit/loss
                 if actual == prediction:
