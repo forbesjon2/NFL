@@ -57,19 +57,238 @@ class NFLUtils():
         "Seattle Seahawks": "sea",
         "Denver Broncos": "den"
     }
+
+    # Columns from the pre sliding window CSV file
+    original_cols = [
+        # First Downs
+        'H_First_Downs', 'V_First_Downs',
+        
+        # Basic Stats
+        'H_Rush', 'V_Rush',
+        'H_Yds', 'V_Yds',
+        'H_TDs', 'V_TDs',
+        'H_Cmp', 'V_Cmp',
+        'H_Att', 'V_Att',
+        'H_Yd', 'V_Yd',
+        'H_TD', 'V_TD',
+        'H_INT', 'V_INT',
+        'H_Sacked', 'V_Sacked',
+        'H_Yards', 'V_Yards',
+        'H_Net_Pass_Yards', 'V_Net_Pass_Yards',
+        'H_Total_Yards', 'V_Total_Yards',
+        'H_Fumbles', 'V_Fumbles',
+        'H_Lost', 'V_Lost',
+        'H_Turnovers', 'V_Turnovers',
+        'H_Penalties', 'V_Penalties',
+        'H_Third_Down_Conv', 'V_Third_Down_Conv',
+        'H_Fourth_Down_Conv', 'V_Fourth_Down_Conv',
+        'H_Time_of_Possession', 'V_Time_of_Possession',
+        
+        # Passing Detailed
+        'H_passing_att', 'V_passing_att',
+        'H_passing_cmp', 'V_passing_cmp',
+        'H_passing_int', 'V_passing_int',
+        'H_passing_lng', 'V_passing_lng',
+        'H_passing_sk', 'V_passing_sk',
+        'H_passing_td', 'V_passing_td',
+        # 'H_passing_yds', 'V_passing_yds',  # Removed in EDA
+        
+        # Receiving
+        'H_receiving_lng', 'V_receiving_lng',
+        # 'H_receiving_td', 'V_receiving_td', # Removed in EDA
+        # 'H_receiving_yds', 'V_receiving_yds', # Removed in EDA
+        
+        # Rushing Detailed
+        'H_rushing_att', 'V_rushing_att',
+        'H_rushing_lng', 'V_rushing_lng',
+        'H_rushing_td', 'V_rushing_td',
+        'H_rushing_yds', 'V_rushing_yds',
+        
+        # Combined passing, rushing TD
+        'H_passing_rushing_td', 'V_passing_rushing_td',
+        
+        # Defense Interceptions
+        'H_def_interceptions_int', 'V_def_interceptions_int',
+        # 'H_def_interceptions_lng', 'V_def_interceptions_lng', # Removed in EDA
+        # 'H_def_interceptions_pd', 'V_def_interceptions_pd',
+        'H_def_interceptions_td', 'V_def_interceptions_td',
+        'H_def_interceptions_yds', 'V_def_interceptions_yds',
+        
+        # Defense Fumbles
+        'H_fumbles_ff', 'V_fumbles_ff',
+        'H_fumbles_fr', 'V_fumbles_fr',
+        'H_fumbles_td', 'V_fumbles_td',
+        'H_fumbles_yds', 'V_fumbles_yds',
+        
+        # Defense Tackles
+        'H_sk', 'V_sk',
+        'H_tackles_ast', 'V_tackles_ast',
+        'H_tackles_comb', 'V_tackles_comb',
+        # 'H_tackles_qbhits', 'V_tackles_qbhits',
+        'H_tackles_solo', 'V_tackles_solo',
+        # 'H_tackles_tfl', 'V_tackles_tfl',
+        
+        # ----------------- Kick & Punt returns are combined in EDA ----------------
+        ## Kick Returns
+        #'H_kick_returns_lng', 'V_kick_returns_lng',
+        #'H_kick_returns_rt', 'V_kick_returns_rt',
+        #'H_kick_returns_td', 'V_kick_returns_td',
+        #'H_kick_returns_yds', 'V_kick_returns_yds',
+        ## Punt Returns
+        #'H_punt_returns_lng', 'V_punt_returns_lng',
+        #'H_punt_returns_ret', 'V_punt_returns_ret',
+        #'H_punt_returns_td', 'V_punt_returns_td',
+        #'H_punt_returns_yds', 'V_punt_returns_yds',
+        
+        # Kick & Punt returns combined (Created as a result of EDA)
+        'H_kick_punt_returns_lng', 'V_kick_punt_returns_lng',
+        'H_kick_punt_returns_rt', 'V_kick_punt_returns_rt',
+        'H_kick_punt_returns_td', 'V_kick_punt_returns_td',
+        'H_kick_punt_returns_yds', 'V_kick_punt_returns_yds',
+        
+        # Punting/Scoring
+        # 'H_punting_lng', 'V_punting_lng', # Removed in EDA
+        
+        'H_punting_pnt', 'V_punting_pnt',
+        # 'H_punting_yds', 'V_punting_yds', # Removed in EDA
+        'H_punting_avg', 'V_punting_avg',   # Created in EDA
+        
+        'H_scoring_fga', 'V_scoring_fga',
+        # 'H_scoring_fgm', 'V_scoring_fgm', # Removed in EDA
+        'H_scoring_fgp', 'V_scoring_fgp',   # Created in EDA
+        
+        'H_scoring_xpa', 'V_scoring_xpa',
+        # 'H_scoring_xpm', 'V_scoring_xpm', # Removed in EDA 
+        'H_scoring_xpp', 'V_scoring_xpp',   # Created in EDA
+        
+        # Final points, allowed points
+        'H_Final', 'V_Final',
+        'H_Final_Allowed', 'V_Final_Allowed',
+        
+        # Odds
+        'H_start_odds', 'V_start_odds',
+        'H_halftime_odds', 'V_halftime_odds'
+    ]
+
+    # Columns in the CSV post SlidingWindowNFL-1
+    cont_cols = [
+        'D_datediff',              # Days since last game (Home - visitor)
+        
+        # first downs
+        'D_First_Downs',
+        
+        # Basic Stats
+        'D_Rush',                  # Number of running plays attempted
+        'D_Yds',                   # Yards gained through running plays
+        'D_TDs',                   # Touchdowns scored via running plays
+        'D_Cmp',                   # Completions (# of successful passes)
+        'D_Att',                   # Attempts (# of passes thrown, completed or not)
+        'D_Yd',                    # Yards (Yards the passes have covered)
+        'D_TD',                    # Touchdowns
+        'D_INT',                   # Interceptions
+        'D_Sacked',                # Number of times quarterback was tackled behind line of scrimmage
+        'D_Yards',                 # Yards lost from sacks
+        'D_Net_Pass_Yards',        # Net passing yards (total yds - yards lost due to sacks)
+        'D_Total_Yards',           # Total yards gained (net pass yards + rushing yds)
+        'D_Fumbles',               # Number of times ball was fumbled
+        'D_Lost',                  # Number of times the team lost possession of the ball due to a fumble
+        'D_Turnovers',             # Total number of turnovers, includes interceptions & fumbles lost
+        'D_Penalties',             # Number of penalties committed by the team
+        'D_Third_Down_Conv',       # 3rd down conversion percentage
+        'D_Fourth_Down_Conv',      # 3rd down conversion percentage
+        'D_Time_of_Possession',    # Time of possession in minutes
+        
+        
+        # Passing Detailed
+        'D_passing_att',           # Passes attempted
+        'D_passing_cmp',           # Passes completed
+        'D_passing_int',           # Interceptions thrown
+        'D_passing_lng',           # Longest completed pass
+        'D_passing_sk',            # Passing times sacked
+        'D_passing_td',            # Passing touchdowns
+        # 'D_passing_yds',           # Yards gained by passing
+        
+        # Receiving
+        'D_receiving_lng',         # Longest reception
+        # 'D_receiving_td',          # Receiving touchdowns
+        # 'D_receiving_yds',         # Receiving yards
+        
+        # Rushing Detailed
+        'D_rushing_att',           # Rushing attempts (sacks not included)
+        'D_rushing_lng',           # Longest rushing attempt (sacks not included)
+        'D_rushing_td',            # Rushing touchdowns
+        'D_rushing_yds',           # Rushing yards
+        
+        # Defense interceptions
+        'D_def_interceptions_int', # Passes intercepted on defense
+        # 'D_def_interceptions_lng', # Longest interception returned
+        'D_def_interceptions_td',  # Interceptions returned for touchdown
+        'D_def_interceptions_yds', # Yards interceptions were returned
+        
+        # Defense fumbles
+        'D_fumbles_ff',            # Num of times forced a fumble by the opposition recovered by either team
+        'D_fumbles_fr',            # Fumbles recovered by player or team
+        'D_fumbles_td',            # Fumbles recovered resulting in touchdown for receiver
+        'D_fumbles_yds',           # Yards recovered fumbles were returned
+        
+        # Defense tackles
+        'D_sk',                    # Sacks
+        'D_tackles_ast',           # Assists on tackles
+        'D_tackles_comb',          # Solo + ast tackles
+        'D_tackles_solo',          # Tackles
+    
+        # ----------------- Kick & Punt returns are combined in EDA ----------------
+        ## Kick Returns
+        #'D_kick_returns_lng',      # Longest kickoff return
+        #'D_kick_returns_rt',       # Kickoff returns 
+        #'D_kick_returns_td',       # Kickoffs returned for a touchdown
+        #'D_kick_returns_yds',      # Yardage for kickoffs returned
+        ## Punt Returns
+        #'D_punt_returns_lng',      # Longest punt return
+        #'D_punt_returns_ret',      # Punts returned
+        #'D_punt_returns_td',       # Punts returned for touchdown
+        #'D_punt_returns_yds',      # Punts return yardage
+        
+        # Kick & Punt returns combined (Created as a result of EDA)
+        #'kick_punt_returns_lng',   # Does not appear on final CSV (UMAP)
+        #'kick_punt_returns_rt',    # Does not appear on final CSV (UMAP)
+        #'kick_punt_returns_td',    # Does not appear on final CSV (UMAP)
+        #'kick_punt_returns_yds',   # Does not appear on final CSV (UMAP)
+        'kick_punt_umap_dim_1',  # Appears on final CSV (UMAP)
+        'kick_punt_umap_dim_2',  # Appears on final CSV (UMAP)
+        
+        # Punting / Scoring
+        # 'D_punting_lng',         # Longest punt
+        
+        'D_punting_pnt',           # Times punted
+        # 'D_punting_yds',         # Total punt yardage
+        'D_punting_avg',           # Total punt yardage / number of punts
+        
+        'D_scoring_fga',           # Field goals attempted
+        # 'D_scoring_fgm',         # Field goals made
+        'D_scoring_fgp',           # Field goals made / Field goals attempted
+    
+        'D_scoring_xpa',           # Extra points attempted
+        # 'D_scoring_xpm',         # Extra points made
+        'D_scoring_xpp',           # Extra pints made / Extra points attempted
+        
+        # Additional, calculated metrics
+        'D_pythagorean',           # NFL variation of Bill James pythagorean expectation (from wikipedia)
+    ]
+
+    drop_cols = ['D_datediff', 'D_Lost', 'D_INT', 'D_Sk', 'D_Yd']
+    
     track_cols = [
         # General
         'Date',  # Date
-
+        
         # First Downs
         'First_Downs',
-
-        # Rushing
+    
+        # Basic Stats
         'Rush',
         'Yds',
         'TDs',
-
-        # Passing
         'Cmp',
         'Att',
         'Yd',
@@ -78,28 +297,15 @@ class NFLUtils():
         'Sacked',
         'Yards',
         'Net_Pass_Yards',
-
-        # Total Yards
         'Total_Yards',
-
-        # Fumbles
         'Fumbles',
         'Lost',
         'Turnovers',
-
-        # Penalties
         'Penalties',
-        'Yards',
-
-        # Third Down Conversions
-        # 'Third_Down_Conv',
-
-        # Fourth Down Conversions
-        # 'Fourth_Down_Conv',
-
-        # Time of Possession
-        # 'Time_of_Possession',
-
+        'Third_Down_Conv',
+        'Fourth_Down_Conv',
+        'Time_of_Possession',
+    
         # Passing Detailed
         'passing_att',
         'passing_cmp',
@@ -107,32 +313,35 @@ class NFLUtils():
         'passing_lng',
         'passing_sk',
         'passing_td',
-        'passing_yds',
-
+        # 'passing_yds', # Removed in EDA
+    
         # Receiving
         'receiving_lng',
-        'receiving_td',
-        'receiving_yds',
-
+        # 'receiving_td', # Removed in EDA
+        # 'receiving_yds', # Removed in EDA
+    
         # Rushing Detailed
         'rushing_att',
         'rushing_lng',
         'rushing_td',
         'rushing_yds',
-
+        
+        # Combined passing, rushing TD 
+        'passing_rushing_td', # TODO: REMOVE THIS 2/27
+    
         # Defense Interceptions
         'def_interceptions_int',
-        'def_interceptions_lng',
+        # 'def_interceptions_lng', # Removed in EDA
         # 'def_interceptions_pd',
         'def_interceptions_td',
         'def_interceptions_yds',
-
+    
         # Defense Fumbles
         'fumbles_ff',
         'fumbles_fr',
         'fumbles_td',
         'fumbles_yds',
-
+    
         # Defense Tackles
         'sk',
         'tackles_ast',
@@ -140,28 +349,47 @@ class NFLUtils():
         # 'tackles_qbhits',
         'tackles_solo',
         # 'tackles_tfl',
-
-        # Kick Returns
-        'kick_returns_lng',
-        'kick_returns_rt',
-        'kick_returns_td',
-        'kick_returns_yds',
-
-        # Punt Returns
-        'punt_returns_lng',
-        'punt_returns_ret',
-        'punt_returns_td',
-        'punt_returns_yds',
-
-        # Punting
-        'punting_lng',
+    
+        # ----------------- Kick & Punt returns are combined in EDA ----------------
+        ## Kick Returns
+        #'kick_returns_lng',
+        #'kick_returns_rt',
+        #'kick_returns_td',
+        #'kick_returns_yds',
+        ## Punt Returns
+        #'punt_returns_lng',
+        #'punt_returns_ret',
+        #'punt_returns_td',
+        #'punt_returns_yds',
+        
+        # Kick & Punt returns combined (Created as a result of EDA)
+        'kick_punt_returns_lng',   # Does not appear on final CSV (UMAP)
+        'kick_punt_returns_rt',    # Does not appear on final CSV (UMAP)
+        'kick_punt_returns_td',    # Does not appear on final CSV (UMAP)
+        'kick_punt_returns_yds',   # Does not appear on final CSV (UMAP)
+        # 'kick_punt_umap_dim_1',  # Appears on final CSV (UMAP)
+        # 'kick_punt_umap_dim_2',  # Appears on final CSV (UMAP)
+    
+        
+        # Punting/Scoring
+        # 'punting_lng', # Removed in EDA
+        
         'punting_pnt',
-        'punting_yds',
+        # 'punting_yds', # Removed in EDA
+        'punting_avg',   # Created in EDA
+        
         'scoring_fga',
-        'scoring_fgm',
+        # 'scoring_fgm', # Removed in EDA
+        'scoring_fgp',   # Created in EDA
+        
         'scoring_xpa',
-        'scoring_xpm',
-
+        # 'scoring_xpm', # Removed in EDA
+        'scoring_xpp',   # Created in EDA
+    
+        # Final score, allowed
+        'Final',
+        'Final_Allowed',
+        
         # Odds
         'start_odds',
         'halftime_odds'
