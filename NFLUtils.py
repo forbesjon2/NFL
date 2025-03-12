@@ -73,7 +73,7 @@ class NFLUtils():
         'H_TD', 'V_TD',
         'H_INT', 'V_INT',
         'H_Sacked', 'V_Sacked',
-        'H_Yards', 'V_Yards',
+        'H_Sacked_Yards', 'V_Sacked_Yards',
         'H_Net_Pass_Yards', 'V_Net_Pass_Yards',
         'H_Total_Yards', 'V_Total_Yards',
         'H_Fumbles', 'V_Fumbles',
@@ -187,7 +187,7 @@ class NFLUtils():
         'D_TD',                    # Touchdowns
         'D_INT',                   # Interceptions
         'D_Sacked',                # Number of times quarterback was tackled behind line of scrimmage
-        'D_Yards',                 # Yards lost from sacks
+        'D_Sacked_Yards',                 # Yards lost from sacks
         'D_Net_Pass_Yards',        # Net passing yards (total yds - yards lost due to sacks)
         'D_Total_Yards',           # Total yards gained (net pass yards + rushing yds)
         'D_Fumbles',               # Number of times ball was fumbled
@@ -295,7 +295,7 @@ class NFLUtils():
         'TD',
         'INT',
         'Sacked',
-        'Yards',
+        'Sacked_Yards',
         'Net_Pass_Yards',
         'Total_Yards',
         'Fumbles',
