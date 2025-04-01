@@ -58,7 +58,7 @@ class NFLUtils():
         "Denver Broncos": "den"
     }
 
-    # Columns from the pre sliding window CSV file
+    # [This variable is unused] - Columns from the pre sliding window CSV file. Some columns listed here are removed in EDA
     original_cols = [
         # First Downs
         'H_First_Downs', 'V_First_Downs',
@@ -274,10 +274,12 @@ class NFLUtils():
         
         # Additional, calculated metrics
         'D_pythagorean',           # NFL variation of Bill James pythagorean expectation (from wikipedia)
+        'D_start_odds',            # Gamebook odds
     ]
 
-    drop_cols = ['D_datediff', 'D_Lost', 'D_INT', 'D_Sk', 'D_Yd']
-    
+    drop_cols = ['D_datediff', 'D_Lost', 'D_INT', 'D_Sk', 'D_Yd', 'D_TD', 'D_Third_Down_Conv', 'D_Cmp', 'D_tackles_solo', 'D_Net_Pass_Yards']
+
+    # Used in SlidingWindowNFL-1. Some variables here (like date) are required but not used as a model input
     track_cols = [
         # General
         'Date',  # Date
