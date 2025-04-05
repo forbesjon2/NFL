@@ -277,7 +277,24 @@ class NFLUtils():
         'D_start_odds',            # Gamebook odds
     ]
 
-    drop_cols = ['D_datediff', 'D_Lost', 'D_INT', 'D_Sk', 'D_Yd', 'D_TD', 'D_Third_Down_Conv', 'D_Cmp', 'D_tackles_solo', 'D_Net_Pass_Yards']
+    drop_cols = [
+
+        # Removed based off of correlation matrix results
+        'D_passing_yds', 'D_receiving_yds', 'D_def_interceptions_lng', 'D_receiving_td',
+
+        # Removed after composing meta-features from pairs of similar columns
+        'D_scoring_fgm', 'D_scoring_xpm', 'D_punting_yds', 
+
+        # Removed after applying UMAP
+        'D_kick_returns_lng', 'D_kick_returns_rt', 'D_kick_returns_td', 'D_kick_returns_yds',
+        'D_punt_returns_lng', 'D_punt_returns_ret', 'D_punt_returns_td', 'D_punt_returns_yds',
+
+        # Created temporarily for UMAP
+        'D_kick_punt_returns_lng', 'D_kick_punt_returns_rt', 'D_kick_punt_returns_td', 'D_kick_punt_returns_yds',
+        
+        # Removed from feature importance using Leshy & BoostAGroota
+        'D_datediff', 'D_Third_Down_Conv', 'D_fumbles_ff', 'D_Net_Pass_Yards', 'D_TD'
+    ]
 
     # Used in SlidingWindowNFL-1. Some variables here (like date) are required but not used as a model input
     track_cols = [
