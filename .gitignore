@@ -21,3 +21,10 @@ baseballData/
 footballData/
 myCIFARmodel.pt
 my_iris_model.pt
+
+SlidingWindowMLB.ipynb
+MLB_ANN.ipynb
+MLB_EDA_and_feature_selection-2.ipynb
+MLBEdaReportOne.html
+EdaReportOne.html
+EdaReportTwo.html
