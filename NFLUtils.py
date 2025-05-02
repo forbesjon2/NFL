@@ -774,8 +774,34 @@ class NFLUtils():
                 return []
             currentDateGames.append({'Season': currentSeason, 'Home_Team': self.team_abbrv[homeList[i].text].upper(), 'Visitor_Team': self.team_abbrv[visitorList[i].text].upper(), 'Date':formattedDate})
         return currentDateGames
+
+    def getMLBOddsSharkData(isoDate):
+        """
+        Get odds data from Odds Shark API
+        """
+        url = f"https://www.oddsshark.com/api/scores/mlb/{isoDate}?_format=json"
+        print(url)
+        response = r.get(url)
+    
+        # Return early if error
+        if response.status_code != 200:
+            print(f"getOddsSharkData: Error fetching data: {response.status_code}")
+            return
         
-        
+        scores = response.json()["scores"]
+        results = []
+        for game in scores:
+            results.append({
+                    "Date": isoDate,
+                    "Rot": game["teams"]["home"]["rotation"],
+                    "Home_Team": game["teams"]["home"]["names"]["abbreviation"],
+                    "Home_Odds": game["teams"]["home"]["moneyLine"],
+                    "Visitor_Team": game["teams"]["away"]["names"]["abbreviation"],
+                    "Visitor_Odds": game["teams"]["away"]["moneyLine"],
+                })
+        return results
+    
+            
         
         
         
