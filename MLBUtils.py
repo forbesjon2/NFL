@@ -133,7 +133,7 @@ class MLBUtils():
         combined_bet_multiplier = correct_bet_multiplier + incorrect_bet_multiplier                  # Combine correct & incorrect bet multipliers
         combined_bet_multiplier = combined_bet_multiplier + 1                                        # Converts to format friendly to cumprod
                                                                                                      # Ex: loss=-0.3, profit=0.3 --> loss=0.7, profit=1.3
-    
+
         assert torch.all((x >= 0) & (x <= 1)), "Probabilities must be between 0 and 1"
         assert torch.all(y_decimal_odds > 1), "Decimal odds must be greater than 1"
         assert torch.all(kelly_criterion <= 1), "Kelly Criterion cannot be greater than 1"
