@@ -57,8 +57,9 @@ class MLBUtils():
     pearson_multiplier: constant to multiply the pearson correlation coefficient's result by
     max_bet_pct: max percentage allowed per bet.
     return_res_array: Skip the torch.cumprod part
+    over_market_odds: See MLB_Gradient_Boost for implementation
     """
-    def custom_criterion(self, x, y, pearson_multiplier=0.5, max_bet_pct=0.1, return_res_array=False):
+    def custom_criterion(self, x, y, pearson_multiplier=0.5, max_bet_pct=0.1, return_res_array=False, over_market_odds=0.0):
         # ------------------------------------------------
         # Preliminary calculations
         # ------------------------------------------------
@@ -105,6 +106,12 @@ class MLBUtils():
         pcc = pcc_numerator / (pcc_denominator_one * pcc_denominator_two + eps)
         pcc = pearson_multiplier * torch.abs(pcc)
     
+
+        # ------------------------------------------------
+        # 1.5 Only bet on cases where your predicted odds
+        #    are <over_market_odds> greater than the
+        #    market odds
+        # ------------------------------------------------
         
         # ------------------------------------------------
         # 2. Calculate the kelly criterion
@@ -114,6 +121,7 @@ class MLBUtils():
         #    The result is cumulatively calculated. i.e. The sum of the previous values are used to calculate the next one
         # ------------------------------------------------
         # kelly_criterion = x - ((1 - x) / y_decimal_odds)  # OLD VERSION
+        
         kelly_criterion = x - ((1 - x) / (y_decimal_odds - 1))
         bet_multiplier = torch.clamp(kelly_criterion, min=0)   # Kelly results that are negative are ignored
         bet_multiplier = bet_multiplier*max_bet_pct            # Scale down the bets to the maximum allowed percentage per bet
